@@ -1,0 +1,32 @@
+;
+; BIND data file for hawkfund.kr
+;
+$TTL    604800
+@       IN      SOA     {{ dns_host }}.{{ domain_name }}. admin.{{ domain_name }}. (
+                              3         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      {{ dns_host }}.{{ domain_name }}.
+
+esxi-r820       IN      A       10.1.55.2
+vcenter         IN      A       10.1.55.3
+{{ admin_hostname }}      IN      A       10.1.55.11
+fw-backend      IN      A       10.1.55.254
+
+k8s-etcd-lb-01  IN      A       10.1.66.23
+k8s-etcd-lb-02  IN      A       10.1.66.24
+k8s-etcd-lb     IN      A       10.1.66.40
+k8s-etcd-01     IN      A       10.1.66.41
+k8s-etcd-02     IN      A       10.1.66.42
+k8s-etcd-03     IN      A       10.1.66.43
+k8s-etcd-04     IN      A       10.1.66.44
+k8s-etcd-05     IN      A       10.1.66.45
+
+{{ dns_host }}      IN      A       10.1.77.5
+{{ proxy_host }}    IN      A       10.1.77.15
+fw-frontend         IN      A       10.1.77.254
+@       IN      A       127.0.0.1
+@       IN      AAAA    ::1

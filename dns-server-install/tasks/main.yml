@@ -1,0 +1,51 @@
+---
+# tasks file for dns-server-install
+- name: "Install Bind9 packages"
+  ansible.builtin.apt:
+    update_cache: true
+    pkg: 
+    - bind9
+    - bind9utils
+    - bind9-doc
+    - dnsutils
+
+- name: "Set hostname"
+  ansible.builtin.hostname:
+    name: "{{ dns_host }}.{{ domain_name }}"
+
+- name: "Save old configuration files"
+  ansible.builtin.copy:
+    src: /etc/bind/{{ item }}
+    dest: /etc/bind/{{ item }}.BAK
+    owner: root
+    group: bind
+    remote_src: yes
+    backup: true
+  with_items:
+  - db.10.1.55
+  - db.10.1.66
+  - db.10.1.77
+  - db.hawkfund.kr
+  - named.conf.local
+  - named.conf.options
+
+
+- name: "Generate db files"
+  template:
+    src: ../templates/{{ item }}.j2
+    dest: /etc/bind/{{ item }}
+    owner: root
+    group: bind
+  with_items:
+  - db.10.1.55
+  - db.10.1.66
+  - db.10.1.77
+  - db.hawkfund.kr
+  - named.conf.local
+  - named.conf.options
+
+- name: "Restart bind service"
+  service:
+    name: bind9
+    state: restarted
+    enabled: yes
