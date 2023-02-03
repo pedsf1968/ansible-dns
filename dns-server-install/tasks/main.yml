@@ -11,9 +11,9 @@
 
 - name: "Set hostname"
   ansible.builtin.hostname:
-    name: "{{ dns_host }}.{{ domain_name }}"
+    name: "{{ bind_host }}.{{ bind_domain }}"
 
-- name: "Save old configuration files"
+- name: Save old configuration files
   ansible.builtin.copy:
     src: /etc/bind/{{ item }}
     dest: /etc/bind/{{ item }}.BAK
@@ -22,25 +22,31 @@
     remote_src: yes
     backup: true
   with_items:
-  - db.10.1.55
-  - db.10.1.66
-  - db.10.1.77
-  - db.hawkfund.kr
   - named.conf.local
   - named.conf.options
 
+- name: Verify if db.{{ bind_domain }} exist
+  local_action: stat path="db.{{ bind_domain }}"
+  register: file   
 
-- name: "Generate db files"
+- name: Save db.{{ bind_domain }} file
+  ansible.builtin.copy:
+    src: /etc/bind/db.{{ bind_domain }}
+    dest: /etc/bind/db.{{ bind_domain }}.BAK
+    owner: root
+    group: bind
+    remote_src: yes
+    backup: true
+  when: file.stat.exists
+
+- name: Generate db files
   template:
     src: ../templates/{{ item }}.j2
     dest: /etc/bind/{{ item }}
     owner: root
     group: bind
   with_items:
-  - db.10.1.55
-  - db.10.1.66
-  - db.10.1.77
-  - db.hawkfund.kr
+  - db.{{ bind_domain }}
   - named.conf.local
   - named.conf.options
 

@@ -1,0 +1,62 @@
+---
+# tasks file for dns-server-add-network
+- name: Save old configuration files
+  ansible.builtin.copy:
+    src: /etc/bind/{{ item }}
+    dest: /etc/bind/{{ item }}.BAK
+    owner: root
+    group: bind
+    remote_src: yes
+    backup: true
+  with_items:
+  - db.{{ bind_domain }}
+  - named.conf.local
+  - named.conf.options
+
+- name: Verify if db.{{ network_ip.split('.')[:3] | join('.') }} exist
+  local_action: stat path="db.{{ network_ip.split('.')[:3] | join('.') }}"
+  register: file   
+
+- name: Save db.{{ network_ip.split('.')[:3] | join('.') }} file
+  ansible.builtin.copy:
+    src: /etc/bind/db.{{ network_ip.split('.')[:3] | join('.') }}
+    dest: /etc/bind/db.{{ network_ip.split('.')[:3] | join('.') }}.BAK
+    owner: root
+    group: bind
+    remote_src: yes
+    backup: true
+  when: file.stat.exists
+
+- name: Generate db.{{ network_ip.split('.')[:3] | join('.') }} files
+  vars:
+    host_list: "{{ groups[ network_name ] }}"
+  template:
+    src: ../templates/db.j2
+    dest: "/etc/bind/db.{{ network_ip.split('.')[:3] | join('.') }}"
+    owner: root
+    group: bind
+
+- name: Add network to trustedclients
+  ansible.builtin.lineinfile:
+    path: /etc/bind/named.conf.options
+    insertafter: "acl trustedclients {"
+    line: "{{ network_ip }}/{{ network_cidr }}"
+    search_string: "{{ network_ip }}/{{ network_cidr }}"
+    state: present
+
+- name: Add zone
+  ansible.builtin.blockinfile:
+    path: /etc/bind/named.conf.local
+    block: |
+      zone "{{ network_ip.split('.')[:3] | reverse | join('.')}}.in-addr.arpa"
+      type master;
+      file /etc/bind/db."{{ network_ip.split('.')[:3] | join('.') }};"
+      };
+
+- name: "Add hosts to db.{{ bind_domain }}"
+  ansible.builtin.lineinfile:
+    path: "/etc/bind/db.{{ bind_domain }}"
+    line: "{{ item }}.{{ bind_domain }}.  IN      A       {{ hostvars[ item ].ansible_host }}"
+    state: present
+  with_items:
+  - "{{ groups[ network_name ]}}"

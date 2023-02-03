@@ -2,15 +2,18 @@
 ; BIND reverse data file for local loopback interface
 ;
 $TTL    604800
-@       IN      SOA     {{ dns_host }}.{{ domain_name }}. admin.{{ domain_name }}. (
+@       IN      SOA     {{ bind_host }}.{{ bind_domain }}. admin.{{ bind_domain }}. (
                               1         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
 ;
-@       IN      NS      dns-server.hawkfund.kr.
+@       IN      NS      {{ bind_host }}.{{ bind_domain }}.
+{% for host in host_list %}
+{{ hostvars[host].ansible_host.split('.')[3] }}  IN  PTR {{ host }}.{{ bind_domain}}.
+{% endfor %}
 
-23      IN      PTR     k8s-etcd-lb-01.{{ domain_name }}
-24      IN      PTR     k8s-etcd-lb-02.{{ domain_name }}
-254     IN      PTR     fw-frontend.{{ domain_name }}
+
+
+
