@@ -39,6 +39,13 @@
     backup: true
   when: file.stat.exists
 
+- name: Generate db.{{ bind_domain }} file
+  template:
+    src: ../templates/db.domain.j2
+    dest: /etc/bind/db.{{ bind_domain }}
+    owner: root
+    group: bind
+  
 - name: Generate db files
   template:
     src: ../templates/{{ item }}.j2
@@ -46,9 +53,9 @@
     owner: root
     group: bind
   with_items:
-  - db.{{ bind_domain }}
   - named.conf.local
   - named.conf.options
+
 
 - name: "Restart bind service"
   service:

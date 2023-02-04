@@ -1,0 +1,4 @@
+zone {{ network_ip.split('.')[:3] | reverse | join('.')}}.in-addr.arpa {
+    type master;
+    file /etc/bind/db.{{ network_ip.split('.')[:3] | join('.') }};
+};

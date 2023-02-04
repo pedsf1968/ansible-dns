@@ -1,0 +1,29 @@
+---
+# tasks file for dns-server-remove-network
+
+- name: Remove db.{{ network_ip.split('.')[:3] | join('.') }} files
+  ansible.builtin.file:
+    path: "/etc/bind/db.{{ network_ip.split('.')[:3] | join('.') }}"
+    state: absent
+
+- name: Remove network to trustedclients
+  ansible.builtin.lineinfile:
+    path: /etc/bind/named.conf.options
+    insertafter: "acl trustedclients {"
+    line: "{{ network_ip }}/{{ network_cidr }}"
+    search_string: "{{ network_ip }}/{{ network_cidr }}"
+    state: absent
+
+- name: Remove zone {{ network_ip }}
+  ansible.builtin.blockinfile:
+    path: /etc/bind/named.conf.local
+    marker: \\{{ bind_ansible_tag }} {{ network_ip }}
+    block: ""
+
+- name: "Remove hosts to db.{{ bind_domain }}"
+  ansible.builtin.lineinfile:
+    path: "/etc/bind/db.{{ bind_domain }}"
+    line: "{{ item }}.{{ bind_domain }}.  IN      A       {{ hostvars[ item ].ansible_host }}"
+    state: absent
+  with_items:
+  - "{{ groups[ network_name ]}}"

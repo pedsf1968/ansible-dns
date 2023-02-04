@@ -1,5 +1,6 @@
+; GENERATE BY ANSIBLE
 ;
-; BIND data file for hawkfund.kr
+; BIND data file for {{ bind_domain }}
 ;
 $TTL    604800
 @       IN      SOA     {{ bind_host }}.{{ bind_domain }}. admin.{{ bind_domain }}. (
@@ -11,11 +12,13 @@ $TTL    604800
 ;
 @       IN      NS      {{ bind_host }}.{{ bind_domain }}.
 
-esxi-r820.{{ bind_domain }}.            IN      A       10.1.55.2
-vcenter.{{ bind_domain }}.              IN      A       10.1.55.3
-fw-backend.{{ bind_domain }}.      IN      A       10.1.55.254
-fw-frontend.{{ bind_domain }}.         IN      A       10.1.77.254
-
+; SPECIFIC HOSTS NOT MANAGED BY ANSIBLE
+esxi-r820.{{ bind_domain }}.    IN      A       10.1.55.2
+vcenter.{{ bind_domain }}.      IN      A       10.1.55.3
+vsphere.{{ bind_domain }}.      IN      A       10.1.55.3
+fw-backend.{{ bind_domain }}.   IN      A       10.1.55.254
+fw-frontend.{{ bind_domain }}.  IN      A       10.1.77.254
+; SPECIFIC HOSTS NOT MANAGED BY ANSIBLE
 
 @       IN      A       127.0.0.1
 @       IN      AAAA    ::1

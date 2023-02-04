@@ -1,10 +1,7 @@
+// GENERATE BY ANSIBLE
 acl trustedclients {
         localhost;
         localnets;
-        10.1.55.0/24;
-        10.1.66.0/24;
-        10.1.77.0/24;
-        10.1.99.0/24;
 };
 
 options {
@@ -24,8 +21,8 @@ options {
         allow-recursion { trustedclients; };
 
         forwarders {
-                8.8.8.8;
-                8.8.4.4;
+                {{ bind_forwarder1 }};
+                {{ bind_forwarder2 }};
         };
 
         //========================================================================
@@ -35,6 +32,6 @@ options {
         dnssec-validation no;
 //      auth-nxdomain no;
 
-        listen-on-v6 port 53 { ::1; };
-        listen-on port 53 { 10.1.77.5; 127.0.0.1; };
+        listen-on-v6 port {{ bind_port }} { ::1; };
+        listen-on port {{ bind_port }} { {{ bind_ip }}; 127.0.0.1; };
 };
