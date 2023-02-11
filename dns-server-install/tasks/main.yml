@@ -1,5 +1,6 @@
 ---
 # tasks file for dns-server-install
+
 - name: "Install Bind9 packages"
   ansible.builtin.apt:
     update_cache: true
@@ -11,7 +12,7 @@
 
 - name: "Set hostname"
   ansible.builtin.hostname:
-    name: "{{ bind_host }}.{{ bind_domain }}"
+    name: "{{ inventory_hostname }}.{{ bind_domain }}"
 
 - name: Save old configuration files
   ansible.builtin.copy:
@@ -55,7 +56,6 @@
   with_items:
   - named.conf.local
   - named.conf.options
-
 
 - name: "Restart bind service"
   service:

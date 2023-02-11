@@ -3,22 +3,22 @@
 ; BIND data file for {{ bind_domain }}
 ;
 $TTL    604800
-@       IN      SOA     {{ bind_host }}.{{ bind_domain }}. admin.{{ bind_domain }}. (
-                              3         ; Serial
+@       IN      SOA     {{ inventory_hostname }}.{{ bind_domain }}. admin.{{ bind_domain }}. (
+                              1         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
 ;
-@       IN      NS      {{ bind_host }}.{{ bind_domain }}.
+@       IN      NS      {{ inventory_hostname }}.{{ bind_domain }}.
 
 ; SPECIFIC HOSTS NOT MANAGED BY ANSIBLE
-esxi-r820.{{ bind_domain }}.    IN      A       10.1.55.2
-vcenter.{{ bind_domain }}.      IN      A       10.1.55.3
-vsphere.{{ bind_domain }}.      IN      A       10.1.55.3
-fw-backend.{{ bind_domain }}.   IN      A       10.1.55.254
-fw-frontend.{{ bind_domain }}.  IN      A       10.1.77.254
-; SPECIFIC HOSTS NOT MANAGED BY ANSIBLE
+{% for host in groups['name-servers'] %}
+{{ host }}    IN  A          {{ hostvars[host].ansible_host }}
+{% endfor %}
 
-@       IN      A       127.0.0.1
-@       IN      AAAA    ::1
+esxi-r820    IN      A       10.1.55.2
+vcenter      IN      A       10.1.55.3
+fw-backend   IN      A       10.1.55.254
+fw-frontend  IN      A       10.1.77.254
+; SPECIFIC HOSTS NOT MANAGED BY ANSIBLE

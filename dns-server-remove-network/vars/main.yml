@@ -1,6 +1,4 @@
 ---
 # vars file for dns-server-add-network
 bind_domain: "{{ domain_name }}"
-bind_host: "{{ dns_host | default('dns-server')}}"
-bind_ip: "{{ dns_ip  | default('10.1.77.5')}}"
 bind_ansible_tag: "ANSIBLE MANAGED ZONE"

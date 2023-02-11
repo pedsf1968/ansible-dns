@@ -40,26 +40,26 @@
   ansible.builtin.lineinfile:
     path: /etc/bind/named.conf.options
     insertafter: "acl trustedclients {"
-    line: "{{ network_ip }}/{{ network_cidr }}"
-    search_string: "{{ network_ip }}/{{ network_cidr }}"
+    line: "{{ network_ip }}/{{ network_cidr }};"
+    search_string: "{{ network_ip }}/{{ network_cidr }};"
     state: present
 
 - name: Add zone tag \\{{ bind_ansible_tag }} {{ network_ip }}
   ansible.builtin.lineinfile:
     path: /etc/bind/named.conf.local
-    line: \\{{ bind_ansible_tag }} {{ network_ip }}
+    line: //{{ bind_ansible_tag }} {{ network_ip }}
     state: present
 
 - name: Add zone {{ network_ip }}
   ansible.builtin.blockinfile:
     path: /etc/bind/named.conf.local
-    marker: \\{{ bind_ansible_tag }} {{ network_ip }}
+    marker: //{{ bind_ansible_tag }} {{ network_ip }}
     block: "{{ lookup('template', 'zone.j2') }}"
 
 - name: "Add hosts to db.{{ bind_domain }}"
   ansible.builtin.lineinfile:
     path: "/etc/bind/db.{{ bind_domain }}"
-    line: "{{ item }}.{{ bind_domain }}.  IN      A       {{ hostvars[ item ].ansible_host }}"
+    line: "{{ item }}      IN      A       {{ hostvars[ item ].ansible_host }}"
     state: present
   with_items:
   - "{{ groups[ network_name ]}}"
